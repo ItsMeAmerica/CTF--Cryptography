@@ -1,0 +1,33 @@
+## Math Heavy Crypto:
+
+by MetaCTF
+
+# Problem Statement
+
+I've heard no one has found a collision for sha256 yet ... will you be the first?
+Take a look at this program
+[https://metaproblems.com/d99ea4173e1febb4890bfba04e5a30c2/collider.py]. If you give
+it the right secret, it will give you the flag!
+Connect to our instance of this program at `nc host5.metaproblems.com 7050`
+
+# Solution
+
+This is a "math heavy" crypto challenge. The SHA part is not very relevant.
+Essentially you have to compute another "secret" number that is different from the
+provided "secret" number but has the same result when sent through the pow(g, N, p)
+function. The 3rd parameter of pow turns this from regular exponentiation into a
+power mod function.
+This challenge relies on Fermat's Little Theorem, which is as follows:
+For a prime p , pow(a,p-1,p) = 1
+By extension, pow(a,k,p) == pow(a,k + m*(p-1),p) for some arbitrary m .
+Here's a sample solve script:
+from pwn import *
+conn = remote('host5.metaproblems.com', 7050)
+conn.recvline()
+conn.recvline()
+exec(conn.recvline())
+exec(conn.recvline())
+exec(conn.recvline())
+payload = str(secret + (p-1)).encode()
+conn.sendlineafter(b'secret: ', payload)
+print(conn.recvall())
